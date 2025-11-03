@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 
 import {
   createInviteAction,
@@ -23,7 +24,7 @@ function SubmitButton() {
 
 export function InviteForm({ companyId }: { companyId: string }) {
   const formAction = createInviteAction.bind(null, companyId);
-  const [state, action] = useFormState<InviteFormState>(
+  const [state, action] = useActionState<InviteFormState, FormData>(
     formAction,
     inviteFormInitialState,
   );
