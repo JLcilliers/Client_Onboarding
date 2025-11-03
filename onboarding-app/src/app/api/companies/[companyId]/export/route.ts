@@ -11,7 +11,7 @@ const paramsSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { companyId: string } },
+  { params }: { params: Promise<{ companyId: string }> },
 ) {
   const supabase = createServerSupabaseClient();
   const {
@@ -25,7 +25,8 @@ export async function GET(
     );
   }
 
-  const parsedParams = paramsSchema.safeParse(params);
+  const resolvedParams = await params;
+  const parsedParams = paramsSchema.safeParse(resolvedParams);
   if (!parsedParams.success) {
     return NextResponse.json(
       { error: parsedParams.error.issues[0]?.message ?? "Invalid company." },
