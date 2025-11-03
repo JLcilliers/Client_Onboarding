@@ -12,7 +12,7 @@ const inviteSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   role: z
     .enum(["client_admin", "client_member", "viewer"], {
-      errorMap: () => ({ message: "Select a valid role" }),
+      message: "Select a valid role",
     })
     .default("client_member"),
 });
