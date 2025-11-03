@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
   const { data: signedUpload, error: signedError } = await serviceClient.storage
     .from("company-assets")
-    .createSignedUploadUrl(objectPath, 60 * 5);
+    .createSignedUploadUrl(objectPath);
 
   if (signedError || !signedUpload) {
     return NextResponse.json(
