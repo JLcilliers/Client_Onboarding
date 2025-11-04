@@ -3,7 +3,7 @@ import { cache } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const getSupabaseSession = cache(async () => {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { session },
     error,

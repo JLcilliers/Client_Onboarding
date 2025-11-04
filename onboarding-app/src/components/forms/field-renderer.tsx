@@ -51,7 +51,7 @@ export function FieldRenderer({ field }: { field: FormField }) {
               ).rows;
               return (
                 <textarea
-                  {...controllerField}
+                  {...controllerField as any}
                   rows={rows ?? 4}
                   placeholder={field.placeholder}
                   className={`${baseInputClasses} min-h-[120px] resize-y`}
@@ -66,7 +66,7 @@ export function FieldRenderer({ field }: { field: FormField }) {
               >).options;
               return (
                 <select
-                  {...controllerField}
+                  {...controllerField as any}
                   className={baseInputClasses}
                   defaultValue=""
                 >
@@ -148,7 +148,7 @@ export function FieldRenderer({ field }: { field: FormField }) {
             default:
               return (
                 <input
-                  {...controllerField}
+                  {...controllerField as any}
                   type={field.type === "number" ? "number" : field.type}
                   placeholder={field.placeholder}
                   className={baseInputClasses}

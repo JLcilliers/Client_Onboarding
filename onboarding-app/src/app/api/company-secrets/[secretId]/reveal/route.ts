@@ -15,7 +15,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ secretId: string }> },
 ) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

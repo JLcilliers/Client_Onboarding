@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 
 import {
   createSecret,
@@ -30,9 +31,12 @@ function SubmitButton() {
 }
 
 export function SecretForm({ companyId }: { companyId: string }) {
-  const formAction = createSecret.bind(null, companyId);
-  const [state, action] = useFormState<SecretFormState>(
-    formAction,
+  const wrappedAction = (prevState: SecretFormState, formData: FormData) => {
+    return createSecret(companyId, prevState, formData);
+  };
+
+  const [state, action] = useActionState<SecretFormState, FormData>(
+    wrappedAction,
     initialSecretFormState,
   );
 

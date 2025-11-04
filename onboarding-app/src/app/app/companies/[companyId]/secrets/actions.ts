@@ -46,7 +46,7 @@ export async function createSecret(
     };
   }
 
-  const authClient = createServerSupabaseClient();
+  const authClient = await createServerSupabaseClient();
   const { data: membership, error: membershipError } = await authClient
     .from("company_members")
     .select("role")

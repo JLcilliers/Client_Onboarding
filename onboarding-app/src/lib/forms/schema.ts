@@ -50,7 +50,7 @@ function fieldToSchema(field: FormField) {
     case "checkbox": {
       if (field.required) {
         return z.literal(true, {
-          errorMap: () => ({ message: requiredMessage }),
+          message: requiredMessage,
         });
       }
       return z.boolean().optional();

@@ -12,7 +12,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ assetId: string }> },
 ) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

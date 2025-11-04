@@ -77,7 +77,7 @@ export type CompanyTableRow = {
 };
 
 export async function getCompanyById(companyId: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("companies")
     .select("id,name")
@@ -101,7 +101,7 @@ export async function getCompanyById(companyId: string) {
 export async function getCompanyDetail(
   companyId: string,
 ): Promise<CompanyDetail | null> {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: company, error: companyError } = await supabase
     .from("companies")
@@ -131,16 +131,12 @@ export async function getCompanyDetail(
     throw questionnaireError;
   }
 
-  let responses: CompanyDetail["questionnaire"]["responses"] = {};
+  let responses: NonNullable<CompanyDetail["questionnaire"]>["responses"] = {};
 
   if (questionnaire) {
     const { data: responseRows, error: responsesError } = await supabase
       .from("questionnaire_responses")
-      .select<{
-        section_key: string;
-        responses: Record<string, unknown> | null;
-        updated_at: string | null;
-      }>("section_key,responses,updated_at")
+      .select("section_key,responses,updated_at")
       .eq("questionnaire_id", questionnaire.id);
 
     if (responsesError) {
@@ -149,7 +145,7 @@ export async function getCompanyDetail(
 
     responses =
       responseRows?.reduce<
-        CompanyDetail["questionnaire"]["responses"]
+        NonNullable<CompanyDetail["questionnaire"]>["responses"]
       >((acc, row) => {
         acc[row.section_key] = {
           updatedAt: row.updated_at ?? null,
@@ -161,10 +157,7 @@ export async function getCompanyDetail(
 
   const { data: companyServices, error: companyServicesError } = await supabase
     .from("company_services")
-    .select<{
-      status: string;
-      services: { key: string; label: string } | null;
-    }>("status,services(key,label)")
+    .select("status,services(key,label)")
     .eq("company_id", companyId);
 
   if (companyServicesError) {
@@ -172,11 +165,14 @@ export async function getCompanyDetail(
   }
 
   const services =
-    companyServices?.map((item) => ({
-      key: item.services?.key ?? "",
-      label: item.services?.label ?? item.services?.key ?? "",
-      status: item.status,
-    })) ?? [];
+    companyServices?.map((item) => {
+      const service = item.services as unknown as { key: string; label: string } | null;
+      return {
+        key: service?.key ?? "",
+        label: service?.label ?? service?.key ?? "",
+        status: item.status,
+      };
+    }) ?? [];
 
   const { data: assets, error: assetsError } = await supabase
     .from("assets")
@@ -230,7 +226,7 @@ export async function getCompanyDetail(
           submittedAt: questionnaire.submitted_at ?? null,
           selectedServices:
             questionnaire.selected_services?.map(
-              (serviceKey) =>
+              (serviceKey: string) =>
                 SERVICE_KEY_TO_DISPLAY[serviceKey] ?? serviceKey.toUpperCase(),
             ) ?? [],
           responses,
@@ -240,7 +236,7 @@ export async function getCompanyDetail(
 }
 
 export async function getRecentCompanySummaries(limit = 4) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
     .from("companies")
@@ -284,7 +280,7 @@ export async function getRecentCompanySummaries(limit = 4) {
 }
 
 export async function getCompanyTable(): Promise<CompanyTableRow[]> {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
     .from("companies")
@@ -332,7 +328,7 @@ type AuditLogRow = {
 };
 
 export async function getCompanyActivity(companyId: string, limit = 10) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("audit_logs")
     .select("id,action,details,created_at")

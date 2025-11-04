@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 
 import {
   createAccessRequest,
@@ -31,9 +32,12 @@ function SubmitButton() {
 }
 
 export function AccessRequestForm({ companyId }: { companyId: string }) {
-  const formAction = createAccessRequest.bind(null, companyId);
-  const [state, action] = useFormState<AccessRequestState>(
-    formAction,
+  const wrappedAction = (prevState: AccessRequestState, formData: FormData) => {
+    return createAccessRequest(companyId, prevState, formData);
+  };
+
+  const [state, action] = useActionState<AccessRequestState, FormData>(
+    wrappedAction,
     initialAccessRequestState,
   );
 

@@ -40,7 +40,7 @@ export async function createAccessRequest(
     };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: membership, error: membershipError } = await supabase
     .from("company_members")

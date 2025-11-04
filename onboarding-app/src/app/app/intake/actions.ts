@@ -65,7 +65,7 @@ async function ensureDraftEntities({
   userId: string;
   context: DraftContext;
 }): Promise<{ companyId: string; questionnaireId: string; serviceKeys: string[] }> {
-  const authClient = createServerSupabaseClient();
+  const authClient = await createServerSupabaseClient();
   const serviceClient = createServiceRoleSupabaseClient();
   const now = new Date().toISOString();
 
@@ -217,6 +217,14 @@ async function ensureDraftEntities({
     if (questionnaireUpdateError) {
       throw new Error("Unable to update questionnaire draft.");
     }
+  }
+
+  if (!companyId) {
+    throw new Error("Company ID is required but was not created or provided.");
+  }
+
+  if (!questionnaireId) {
+    throw new Error("Questionnaire ID is required but was not created.");
   }
 
   return {

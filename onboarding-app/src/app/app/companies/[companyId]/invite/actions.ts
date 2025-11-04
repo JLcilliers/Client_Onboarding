@@ -39,7 +39,7 @@ export async function createInviteAction(
     };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data: membership, error: membershipError } = await supabase
     .from("company_members")
     .select("role")

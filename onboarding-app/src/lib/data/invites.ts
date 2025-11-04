@@ -25,7 +25,7 @@ export async function getInviteByToken(token: string): Promise<InviteMetadata | 
 
   const { data, error } = await supabase
     .from("invites")
-    .select<InviteRow>(
+    .select(
       "id,email,role,accepted,company_id,companies!inner(id,name)",
     )
     .eq("token", token)
@@ -35,15 +35,17 @@ export async function getInviteByToken(token: string): Promise<InviteMetadata | 
     throw error;
   }
 
-  if (!data) return null;
+  const inviteData = data as InviteRow | null;
+
+  if (!inviteData) return null;
 
   return {
-    id: data.id,
-    email: data.email,
-    role: data.role,
-    companyId: data.company_id,
-    companyName: data.companies?.name ?? "Unknown company",
-    accepted: data.accepted,
+    id: inviteData.id,
+    email: inviteData.email,
+    role: inviteData.role,
+    companyId: inviteData.company_id,
+    companyName: inviteData.companies?.name ?? "Unknown company",
+    accepted: inviteData.accepted,
   };
 }
 
