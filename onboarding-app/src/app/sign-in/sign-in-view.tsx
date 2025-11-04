@@ -23,9 +23,10 @@ export function SignInView({ invite, errorMessage }: SignInViewProps) {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
+      const origin = typeof window !== 'undefined' ? window.location.origin : clientEnv.SITE_URL;
       const redirectTo = invite?.token
-        ? `${clientEnv.SITE_URL}/auth/callback?invite=${invite.token}`
-        : `${clientEnv.SITE_URL}/auth/callback`;
+        ? `${origin}/auth/callback?invite=${invite.token}`
+        : `${origin}/auth/callback`;
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
