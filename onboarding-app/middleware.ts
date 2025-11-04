@@ -2,8 +2,6 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-import { clientEnv } from "@/env/client";
-
 const PROTECTED_PATHS = ["/app"];
 
 export async function middleware(request: NextRequest) {
@@ -20,8 +18,8 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   const supabase = createServerClient(
-    clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-    clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
