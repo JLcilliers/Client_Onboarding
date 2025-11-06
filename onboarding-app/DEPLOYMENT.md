@@ -409,14 +409,51 @@ Route (app)                              Size     First Load JS
 
 ### All Required Environment Variables
 
-| Variable | Type | Description | Where to Get |
-|----------|------|-------------|--------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Public | Supabase project URL | Supabase Dashboard → Settings → API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Supabase anon/public key | Supabase Dashboard → Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Secret | Supabase service role key | Supabase Dashboard → Settings → API |
-| `SUPABASE_JWT_SECRET` | Secret | JWT signing secret | Supabase Dashboard → Settings → API → JWT Settings |
-| `SUPABASE_SECRET_PASSPHRASE` | Secret | Encryption passphrase | Generate (Step 1.2) |
-| `SITE_URL` | Public | Production URL | Your Vercel deployment URL |
+**CRITICAL:** All 6 environment variables below are **required** for the application to build and run. The application uses Zod schemas (`src/env/client.ts` and `src/env/server.ts`) to validate these at build time. If any required variable is missing or invalid, the build will fail immediately.
+
+#### Client-Side Variables (Public - Safe to expose to browser)
+
+| Variable | Validation | Description | Where to Get |
+|----------|-----------|-------------|--------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Must be valid URL format | Your Supabase project URL. Used by browser to connect to Supabase. | Supabase Dashboard → Settings → API → **Project URL** |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Minimum 1 character | Supabase anonymous/public key. Safe to expose - has limited permissions. | Supabase Dashboard → Settings → API → **Project API keys** → `anon` `public` |
+| `SITE_URL` | Must be valid URL format. **Default:** `http://localhost:3000` | Your application's public URL. Used for OAuth redirects and cookies. | **Local:** `http://localhost:3000`<br/>**Production:** Your Vercel URL (e.g., `https://your-app.vercel.app`) |
+
+#### Server-Side Variables (Secret - NEVER expose to browser)
+
+| Variable | Validation | Description | Where to Get |
+|----------|-----------|-------------|--------------|
+| `SUPABASE_SERVICE_ROLE_KEY` | Minimum 1 character | Supabase service role key with full database access. **KEEP SECRET.** | Supabase Dashboard → Settings → API → **Project API keys** → `service_role` (click **Reveal**) |
+| `SUPABASE_JWT_SECRET` | Minimum 1 character | Secret used to verify JWT tokens from Supabase Auth. **KEEP SECRET.** | Supabase Dashboard → Settings → API → **JWT Settings** → **JWT Secret** (scroll down) |
+| `SUPABASE_SECRET_PASSPHRASE` | **Minimum 16 characters** | Passphrase for encrypting sensitive data in database. **KEEP SECRET.** Must be strong random string. | **Generate yourself** (see Step 1.2) - Use 32+ character random string with letters, numbers, symbols |
+
+#### Validation Details
+
+The application validates environment variables using Zod schemas:
+
+**Client variables** (`src/env/client.ts:5-16`):
+```typescript
+const clientSchema = z.object({
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url("must be a valid URL"),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  SITE_URL: z.string().url("must be a valid URL").default("http://localhost:3000"),
+});
+```
+
+**Server variables** (`src/env/server.ts:3-8`):
+```typescript
+const serverSchema = z.object({
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_JWT_SECRET: z.string().min(1),
+  SUPABASE_SECRET_PASSPHRASE: z.string().min(16), // Must be at least 16 chars!
+});
+```
+
+**Build Behavior:** These schemas call `.parse()` at module load time. If validation fails, you'll see an error like:
+```
+Error: NEXT_PUBLIC_SUPABASE_URL must be a valid URL
+  at src/env/client.ts:14:37
+```
 
 ### Which Variables Go Where
 
