@@ -17,10 +17,20 @@ export async function createServerSupabaseClient() {
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch {
+            // Cookies can only be modified in Server Actions or Route Handlers
+            // Silently ignore in Server Components
+          }
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options, maxAge: 0 });
+          try {
+            cookieStore.set({ name, value: "", ...options, maxAge: 0 });
+          } catch {
+            // Cookies can only be modified in Server Actions or Route Handlers
+            // Silently ignore in Server Components
+          }
         },
       },
     },
