@@ -115,15 +115,19 @@ async function verifyDatabase() {
     }
   }
 
-  // Check 5: Verify OAuth providers
+  // Check 5: Verify authentication configuration
   console.log("\n5️⃣ Checking authentication configuration...");
   try {
-    const { data: { providers }, error } = await supabase.auth.getSession();
+    const { data, error } = await supabase.auth.getSession();
     if (error) {
-      console.log("⚠️  Could not verify auth providers (this is normal)");
+      console.log("⚠️  Could not verify auth configuration (this is normal)");
+    } else if (data.session) {
+      console.log("✅ Authentication system is configured");
+    } else {
+      console.log("ℹ️  No active session (this is expected for server-side check)");
     }
   } catch (error: any) {
-    console.log("⚠️  Could not verify auth providers:", error.message);
+    console.log("⚠️  Could not verify auth configuration:", error.message);
   }
 
   console.log("\n✨ Database verification complete!");
